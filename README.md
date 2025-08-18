@@ -17,7 +17,7 @@ You can access the pipeline [here](https://sustentarea.github.io/global-historic
 
 [![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/TNFGU-1284C5.svg)](https://doi.org/10.17605/OSF.IO/TNFGU)
 
-The processed data are available in the `rds` format via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/TNFGU). You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
+The processed data are available in the `tif` format via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/TNFGU). You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
 
 ## How to Use
 

@@ -11,7 +11,7 @@
     "href": "index.html#data-availability",
     "title": "",
     "section": "Data Availability",
-    "text": "Data Availability\n\n\n\nThe processed data are available in the rds format via a dedicated repository on the Open Science Framework (OSF), accessible here. You can also access these files directly from R using the osfr package."
+    "text": "Data Availability\n\n\n\nThe processed data are available in the tif format via a dedicated repository on the Open Science Framework (OSF), accessible here. You can also access these files directly from R using the osfr package."
   },
   {
     "objectID": "index.html#methods",
@@ -32,14 +32,14 @@
     "href": "index.html#set-the-initial-variables",
     "title": "",
     "section": "Set the Initial Variables",
-    "text": "Set the Initial Variables\n\ncrop &lt;- c(\n  \"maize\", \"maize_major\", \"maize_second\", \"rice\", \"rice_major\", \"rice_second\",\n  \"soybean\", \"wheat\", \"wheat_spring\", \"wheat_winter\"\n)\n\n\ncrop &lt;- \"rice\"\n\n\nraw_data_dir &lt;- here(\"data-raw\")\n\n\nvalid_data_dir &lt;- here(\"data\")"
+    "text": "Set the Initial Variables\n\ncrop &lt;- c(\n  \"maize\", \"maize_major\", \"maize_second\", \"rice\", \"rice_major\", \"rice_second\",\n  \"soybean\", \"wheat\", \"wheat_spring\", \"wheat_winter\"\n)\n\n\ncrop &lt;- \"rice\"\n\n\nraw_data_dir &lt;- here(\"data-raw\")\n\n\nvalid_data_dir &lt;- here(\"data\")\n\n\nCodedirs &lt;- c(raw_data_dir, valid_data_dir)\n\nfor (i in dirs) {\n  if (!dir_exists(i)) {\n    dir_create(i, recurse = TRUE)\n  }\n}"
   },
   {
     "objectID": "index.html#download-the-data",
     "href": "index.html#download-the-data",
     "title": "",
     "section": "Download the Data",
-    "text": "Download the Data\n\nif (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)\n\n\nraw_file &lt;- here(raw_data_dir, \"raw.zip\")\n\n\npaste0(\n    \"https://store.pangaea.de/Publications/\",\n    \"IizumiT_2019/\",\n    \"global-historical-yield_v1.2_v1.3_20190128.zip\"\n  ) |&gt;\n  request() |&gt;\n  req_progress() |&gt;\n  req_perform(raw_file)"
+    "text": "Download the Data\n\nraw_file &lt;- here(raw_data_dir, \"raw.zip\")\n\n\npaste0(\n    \"https://store.pangaea.de/Publications/\",\n    \"IizumiT_2019/\",\n    \"global-historical-yield_v1.2_v1.3_20190128.zip\"\n  ) |&gt;\n  request() |&gt;\n  req_progress() |&gt;\n  req_perform(raw_file)"
   },
   {
     "objectID": "index.html#unzip-the-data",
@@ -63,13 +63,6 @@
     "text": "Tidy the Data\n\nyears &lt;- files |&gt; str_extract(\"\\\\d{4}\")\n\n\nnames(data) &lt;- years\nvarnames(data) &lt;- rep(paste0(crop, \"_yield\"), nlyr(data))\n\n\ndata &lt;- data |&gt; shift_and_rotate(dx = 180)"
   },
   {
-    "objectID": "index.html#visualize-the-data",
-    "href": "index.html#visualize-the-data",
-    "title": "",
-    "section": "Visualize the Data",
-    "text": "Visualize the Data\n\nmax_value &lt;-\n  data |&gt;\n  minmax() |&gt;\n  c() |&gt;\n  max(na.rm = TRUE) |&gt;\n  divide_by(5) |&gt;\n  ceiling() |&gt;\n  multiply_by(5)\n\n\nworld_shape &lt;- world(path = raw_data_dir)\n\n\nfor (i in cut_vector(names(data), n = 9)) {\n  i_data &lt;- data |&gt; select(all_of(i))\n\n  i_plot &lt;-\n    ggplot() +\n    geom_spatvector(data = world_shape) +\n    geom_spatraster(data = i_data) +\n    facet_wrap(~lyr, ncol = 2) +\n    scale_fill_brand_b(\n      direction = -1,\n      limits = c(0, max_value),\n      breaks = seq(0, max_value, 5) |&gt; remove_caps()\n    ) +\n    labs(fill = \"Yield (t/ha)\")\n\n  print(i_plot)\n}"
-  },
-  {
     "objectID": "index.html#data-dictionary",
     "href": "index.html#data-dictionary",
     "title": "",
@@ -77,11 +70,18 @@
     "text": "Data Dictionary\nThe data dictionary for the Global Dataset of Historical Yield is available here. For detailed information, see Iizumi (2019) and Iizumi & Sakai (2020)."
   },
   {
-    "objectID": "index.html#save-the-valid-data",
-    "href": "index.html#save-the-valid-data",
+    "objectID": "index.html#save-the-data",
+    "href": "index.html#save-the-data",
     "title": "",
-    "section": "Save the Valid Data",
-    "text": "Save the Valid Data\n\nif (!dir.exists(valid_data_dir)) dir.create(valid_data_dir)\n\n\nvalid_file &lt;- here(\"data\", paste0(crop, \".rds\"))\n\n\ndata |&gt; write_rds(valid_file)"
+    "section": "Save the Data",
+    "text": "Save the Data\n\nvalid_file &lt;- here(\"data\", paste0(crop, \".tif\"))\n\n\ndata |&gt; terra::writeRaster(valid_file, overwrite = TRUE)"
+  },
+  {
+    "objectID": "index.html#visualize-the-data",
+    "href": "index.html#visualize-the-data",
+    "title": "",
+    "section": "Visualize the Data",
+    "text": "Visualize the Data\n\nmax_value &lt;-\n  data |&gt;\n  minmax() |&gt;\n  c() |&gt;\n  max(na.rm = TRUE) |&gt;\n  divide_by(5) |&gt;\n  ceiling() |&gt;\n  multiply_by(5)\n\n\nworld_shape &lt;- world(path = raw_data_dir)\n\n\nfor (i in cut_vector(names(data), n = 9)) {\n  i_data &lt;- data |&gt; select(all_of(i))\n\n  i_plot &lt;-\n    ggplot() +\n    geom_spatvector(data = world_shape) +\n    geom_spatraster(data = i_data) +\n    facet_wrap(~lyr, ncol = 2) +\n    scale_fill_brand_b(\n      direction = -1,\n      limits = c(0, max_value),\n      breaks = seq(0, max_value, 5) |&gt; remove_caps()\n    ) +\n    labs(fill = \"Yield (t/ha)\")\n\n  print(i_plot)\n}"
   },
   {
     "objectID": "index.html#how-to-cite",

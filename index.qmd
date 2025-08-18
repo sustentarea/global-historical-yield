@@ -24,7 +24,7 @@ This report contains a reproducible pipeline for processing the *Global Dataset 
 [![](https://img.shields.io/badge/OSF-10.17605/OSF.IO/TNFGU-1284C5.svg)](https://doi.org/10.17605/OSF.IO/TNFGU)
 :::
 
-The processed data are available in the `rds` format via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/TNFGU). You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
+The processed data are available in the `tif` format via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/TNFGU). You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
 
 ## Methods
 
@@ -110,14 +110,17 @@ raw_data_dir <- here("data-raw")
 valid_data_dir <- here("data")
 ```
 
-## Download the Data
-
 ```{r}
-#| eval: false
-#| code-fold: false
+dirs <- c(raw_data_dir, valid_data_dir)
 
-if (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)
+for (i in dirs) {
+  if (!dir_exists(i)) {
+    dir_create(i, recurse = TRUE)
+  }
+}
 ```
+
+## Download the Data
 
 ```{r}
 #| eval: false
@@ -197,6 +200,56 @@ varnames(data) <- rep(paste0(crop, "_yield"), nlyr(data))
 data <- data |> shift_and_rotate(dx = 180)
 ```
 
+## Data Dictionary
+
+The data dictionary for the *Global Dataset of Historical Yield* is available [here](https://doi.org/10.20783/DIAS.564). For detailed information, see @iizumi2019 and @iizumi2020.
+
+## Save the Data
+
+```{r}
+#| code-fold: false
+
+valid_file <- here("data", paste0(crop, ".tif"))
+```
+
+```{r}
+#| code-fold: false
+
+data |> terra::writeRaster(valid_file, overwrite = TRUE)
+```
+
+<!-- ## Upload the Data to OSF (Optional) -->
+
+<!-- Only repository administrators can upload data to OSF. -->
+<!-- To enable uploads, set your `OSF_PAT` environment variable with a valid OSF personal access token. -->
+
+```{r}
+#| eval: true
+#| include: false
+
+Sys.getenv("OSF_PAT") |> osf_auth()
+```
+
+```{r}
+#| eval: true
+#| include: false
+
+osf_id <- paste0("https://osf.io/", "mvsdk")
+
+osf_upload(
+  x = osf_retrieve_node(osf_id),
+  path = valid_file,
+  conflicts = "overwrite"
+)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+dev.off()
+```
+
 ## Visualize the Data
 
 ```{r}
@@ -241,74 +294,6 @@ for (i in cut_vector(names(data), n = 9)) {
 
   print(i_plot)
 }
-```
-
-## Data Dictionary
-
-The data dictionary for the *Global Dataset of Historical Yield* is available [here](https://doi.org/10.20783/DIAS.564). For detailed information, see @iizumi2019 and @iizumi2020.
-
-## Save the Valid Data
-
-```{r}
-#| code-fold: false
-
-if (!dir.exists(valid_data_dir)) dir.create(valid_data_dir)
-```
-
-```{r}
-#| code-fold: false
-
-valid_file <- here("data", paste0(crop, ".rds"))
-```
-
-```{r}
-#| code-fold: false
-
-data |> write_rds(valid_file)
-```
-
-<!-- ## Upload the Data to OSF (Optional) -->
-
-<!-- Only repository administrators can upload data to OSF. -->
-<!-- To enable uploads, set your `OSF_PAT` environment variable with a valid OSF personal access token. -->
-
-```{r}
-#| eval: false
-#| include: false
-
-Sys.getenv("OSF_PAT") |> osf_auth()
-```
-
-```{r}
-#| eval: false
-#| include: false
-
-license_file <- here("data", "LICENSE.txt")
-
-if (!file_exists(license_file)) {
-  request("https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt") |>
-    req_perform(path = license_file)
-}
-```
-
-```{r}
-#| eval: false
-#| include: false
-
-osf_id <- paste0("https://osf.io/", "mvsdk")
-
-osf_upload(
-  x = osf_retrieve_node(osf_id),
-  path = c(valid_file, license_file),
-  conflicts = "overwrite"
-)
-```
-
-```{r}
-#| eval: false
-#| include: false
-
-dev.off()
 ```
 
 ## How to Cite
