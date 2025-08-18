@@ -1,4 +1,4 @@
-# gdhy
+# global-historical-yield
 
 <!-- badges: start -->
 [![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
@@ -11,7 +11,7 @@
 
 This repository contains a reproducible pipeline for processing the *Global Dataset of Historical Yield* ([Iizumi, 2019](https://doi.pangaea.de/10.1594/PANGAEA.909132); [Iizumi & Sakai, 2020](https://doi.org/10.1038/s41597-020-0433-7)) in [R](https://www.r-project.org/).
 
-You can access the pipeline [here](https://sustentarea.github.io/gdhy/).
+You can access the pipeline [here](https://sustentarea.github.io/global-historical-yield/).
 
 ## Data Availability
 
@@ -37,7 +37,7 @@ After installing the three dependencies mentioned above, follow these steps to r
 
 To cite this work, please use the following format:
 
-Vartanian, D., & Carvalho, A. M. (2025). *A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.* \[Computer software\]. Sustentarea Research and Extension Group of the University of São Paulo. <https://sustentarea.github.io/gdhy>
+Vartanian, D., & Carvalho, A. M. (2025). *A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.* \[Computer software\]. Sustentarea Research and Extension Group of the University of São Paulo. <https://sustentarea.github.io/global-historical-yield>
 
 A BibTeX entry for LaTeX users is
 
@@ -49,7 +49,7 @@ A BibTeX entry for LaTeX users is
   address = {São Paulo},
   institution = {Sustentarea Research and Extension Group of the University of São Paulo},
   langid = {en},
-  url = {https://sustentarea.github.io/gdhy}
+  url = {https://sustentarea.github.io/global-historical-yield}
 }
 ```
 

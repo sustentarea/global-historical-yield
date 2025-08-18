@@ -6,6 +6,7 @@ library(ggplot2)
 library(here)
 library(httpgd) # github.com/nx10/httpgd
 library(knitr)
+library(languageserver) # For VSCode support
 library(magrittr)
 library(quartor) # github.com/danielvartan/quartor
 library(ragg)

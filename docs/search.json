@@ -25,7 +25,7 @@
     "href": "index.html#set-the-environment",
     "title": "",
     "section": "Set the Environment",
-    "text": "Set the Environment\n\nlibrary(brandr)\nlibrary(fs)\nlibrary(geodata)\nlibrary(ggplot2)\nlibrary(groomr) # github.com/danielvartan/groomr\nlibrary(here)\nlibrary(httr2)\nlibrary(ncdf4)\nlibrary(orbis) # github.com/danielvartan/orbis\nlibrary(osfr)\nlibrary(readr)\nlibrary(stringr)\nlibrary(terra)\nlibrary(tidyterra)\nlibrary(zip)"
+    "text": "Set the Environment\n\nlibrary(brandr)\nlibrary(fs)\nlibrary(geodata)\nlibrary(ggplot2)\nlibrary(groomr) # github.com/danielvartan/groomr\nlibrary(here)\nlibrary(httr2)\nlibrary(magrittr)\nlibrary(ncdf4)\nlibrary(orbis) # github.com/danielvartan/orbis\nlibrary(osfr)\nlibrary(readr)\nlibrary(stringr)\nlibrary(terra)\nlibrary(tidyterra)\nlibrary(zip)"
   },
   {
     "objectID": "index.html#set-the-initial-variables",
@@ -39,7 +39,7 @@
     "href": "index.html#download-the-data",
     "title": "",
     "section": "Download the Data",
-    "text": "Download the Data\n\nif (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)\n\n\nraw_file &lt;- here(raw_data_dir, \"raw.zip\")\n\n\npaste0(\n    \"https://store.pangaea.de/Publications/\",\n    \"IizumiT_2019/\",\n    \"gdhy_v1.2_v1.3_20190128.zip\"\n  ) |&gt;\n  request() |&gt;\n  req_progress() |&gt;\n  req_perform(raw_file)"
+    "text": "Download the Data\n\nif (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)\n\n\nraw_file &lt;- here(raw_data_dir, \"raw.zip\")\n\n\npaste0(\n    \"https://store.pangaea.de/Publications/\",\n    \"IizumiT_2019/\",\n    \"global-historical-yield_v1.2_v1.3_20190128.zip\"\n  ) |&gt;\n  request() |&gt;\n  req_progress() |&gt;\n  req_perform(raw_file)"
   },
   {
     "objectID": "index.html#unzip-the-data",
@@ -67,7 +67,7 @@
     "href": "index.html#visualize-the-data",
     "title": "",
     "section": "Visualize the Data",
-    "text": "Visualize the Data\n\nworld_shape &lt;- world(path = raw_data_dir)\n\n\nfor (i in cut_vector(names(data), n = 9)) {\n  i_data &lt;- data |&gt; select(all_of(i))\n\n  i_plot &lt;-\n    ggplot() +\n    geom_spatvector(data = world_shape) +\n    geom_spatraster(data = i_data) +\n    facet_wrap(~lyr, ncol = 2) +\n    scale_fill_brand_b(direction = -1) +\n    labs(fill = \"Yield (t/ha)\")\n\n  print(i_plot)\n}"
+    "text": "Visualize the Data\n\nmax_value &lt;-\n  data |&gt;\n  minmax() |&gt;\n  c() |&gt;\n  max(na.rm = TRUE) |&gt;\n  divide_by(5) |&gt;\n  ceiling() |&gt;\n  multiply_by(5)\n\n\nworld_shape &lt;- world(path = raw_data_dir)\n\n\nfor (i in cut_vector(names(data), n = 9)) {\n  i_data &lt;- data |&gt; select(all_of(i))\n\n  i_plot &lt;-\n    ggplot() +\n    geom_spatvector(data = world_shape) +\n    geom_spatraster(data = i_data) +\n    facet_wrap(~lyr, ncol = 2) +\n    scale_fill_brand_b(\n      direction = -1,\n      limits = c(0, max_value),\n      breaks = seq(0, max_value, 5) |&gt; remove_caps()\n    ) +\n    labs(fill = \"Yield (t/ha)\")\n\n  print(i_plot)\n}"
   },
   {
     "objectID": "index.html#data-dictionary",
@@ -88,7 +88,7 @@
     "href": "index.html#how-to-cite",
     "title": "",
     "section": "How to Cite",
-    "text": "How to Cite\n\n\n\n\n\n\nWhen using this data, you must also cite the original data sources.\n\n\n\nTo cite this work, please use the following format:\nVartanian, D., & Carvalho, A. M. (2025). A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al. [Computer software]. Sustentarea Research and Extension Group of the University of São Paulo. https://sustentarea.github.io/gdhy\nA BibTeX entry for LaTeX users is\n@misc{vartanian2025,\n  title = {A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.},\n  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},\n  year = {2025},\n  address = {São Paulo},\n  institution = {Sustentarea Research and Extension Group of the University of São Paulo},\n  langid = {en},\n  url = {https://sustentarea.github.io/gdhy}\n}"
+    "text": "How to Cite\n\n\n\n\n\n\nWhen using this data, you must also cite the original data sources.\n\n\n\nTo cite this work, please use the following format:\nVartanian, D., & Carvalho, A. M. (2025). A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al. [Computer software]. Sustentarea Research and Extension Group of the University of São Paulo. https://sustentarea.github.io/global-historical-yield\nA BibTeX entry for LaTeX users is\n@misc{vartanian2025,\n  title = {A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.},\n  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},\n  year = {2025},\n  address = {São Paulo},\n  institution = {Sustentarea Research and Extension Group of the University of São Paulo},\n  langid = {en},\n  url = {https://sustentarea.github.io/global-historical-yield}\n}"
   },
   {
     "objectID": "index.html#license",
