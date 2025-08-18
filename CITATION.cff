@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+title: >-
+  A Reproducible Pipeline for Processing the Global Dataset of Historical
+  Yields (1981-2016) by Iizumi et al.
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Daniel
+    family-names: Vartanian
+    email: danvartan@gmail.com
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0001-7782-759X'
+  - given-names: Aline Martins
+    family-names: Carvalho
+    email: alinenutri@usp.br
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0002-4900-5609'
+abstract: >-
+  This report provides a fully reproducible pipeline for processing the Global
+  Dataset of Historical Yields (1981-2016) by Iizumi et al.
+keywords:
+  - Pipelines
+  - Crop Yields
+  - Historical Yields
+  - Time Series
+  - Data Munging
+  - Data Science
+  - Spatial Data
+  - R Programming
+  - Open Data
+  - Open Science
+  - PANGAEA
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/2UD7C
+    description: OSF Compendium
+repository-code: 'https://github.com/sustentarea/global-historical-yield'
+repository: 'https://doi.org/10.17605/OSF.IO/TNFGU'
+repository-artifact: 'https://doi.org/10.17605/OSF.IO/MVSDK'
+license: GPLv3

@@ -1,0 +1,97 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "global-historical-yield",
+  "dateCreated": "2025-08-18",
+  "applicationCategory": "Pipelines",
+  "name": "A Reproducible Pipeline for Processing the Global Dataset of Historical Yields (1981-2016) by Iizumi et al.",
+  "author": [
+    {
+      "@type": "Person",
+      "familyName": "Vartanian",
+      "givenName": "Daniel",
+      "email": "hi@danielvartan.com",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of São Paulo",
+        "url": "https://www.usp.br"
+      },
+      "@id": "https://orcid.org/0000-0001-7782-759X"
+    },
+    {
+      "@type": "Person",
+      "familyName": "Carvalho",
+      "givenName": "Aline Martins de",
+      "email": "alinenutri@usp.br",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of São Paulo",
+        "url": "https://www.usp.br"
+      },
+      "@id": "https://orcid.org/0000-0002-4900-5609"
+    }
+  ],
+  "funder": [
+    {
+      "@type": "Organization",
+      "name": "Department of Science and Technology of the Secretariat of Science, Technology, and Innovation and of the Health Economic-Industrial Complex (SECTICS) of the Ministry of Health of Brazil",
+      "@id": "https://www.gov.br/saude/pt-br/composicao/sectics/"
+    },
+    {
+      "@type": "Organization",
+      "name": "Conselho Nacional de Desenvolvimento Científico e Tecnológico - Brazil (CNPq)",
+      "@id": "https://www.gov.br/cnpq/"
+    }
+  ],
+  "funding": "CNPq 444588/2023-0",
+  "provider": {
+    "@id": "https://www.fsp.usp.br/sustentarea/",
+    "@type": "Organization",
+    "name": "Sustentarea",
+    "url": "https://www.fsp.usp.br/sustentarea/"
+  },
+  "copyrightHolder": {
+    "@type": "Person",
+    "familyName": "Vartanian",
+    "givenName": "Daniel",
+    "email": "hi@danielvartan.com",
+    "@id": "https://orcid.org/0000-0001-7782-759X"
+  },
+  "maintainer": {
+    "@type": "Person",
+    "familyName": "Vartanian",
+    "givenName": "Daniel",
+    "email": "hi@danielvartan.com",
+    "@id": "https://orcid.org/0000-0001-7782-759X"
+  },
+  "description": "This report provides a fully reproducible pipeline for processing the Global Dataset of Historical Yields (1981-2016) by Iizumi et al.",
+  "keywords": [
+    "Pipelines",
+    "Crop Yields",
+    "Historical Climate",
+    "Time Series",
+    "Data Munging",
+    "Data Science",
+    "Spatial Data",
+    "R Programming",
+    "Open Data",
+    "Open Science",
+    "PANGAEA"
+  ],
+  "license": "https://www.gnu.org/licenses/gpl-3.0",
+  "codeRepository": "https://github.com/sustentarea/global-historical-yield",
+  "issueTracker": "https://github.com/sustentarea/global-historical-yield/issues",
+  "relatedLink": [
+    "https://doi.org/10.17605/OSF.IO/TNFGU",
+    "https://doi.org/10.17605/OSF.IO/MVSDK"
+  ],
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "version": "4.5.1",
+    "url": "https://www.r-project.org"
+  },
+  "runtimePlatform": "R version 4.5.1 (2025)",
+  "developmentStatus": "inactive",
+  "readme": "https://github.com/sustentarea/global-historical-yield/blob/main/README.md"
+}

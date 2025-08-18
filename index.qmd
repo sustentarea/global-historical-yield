@@ -243,13 +243,6 @@ osf_upload(
 )
 ```
 
-```{r}
-#| eval: false
-#| include: false
-
-dev.off()
-```
-
 ## Visualize the Data
 
 ```{r}
@@ -294,6 +287,13 @@ for (i in cut_vector(names(data), n = 9)) {
 
   print(i_plot)
 }
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+dev.off()
 ```
 
 ## How to Cite
