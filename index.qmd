@@ -1,0 +1,388 @@
+```{r}
+#| label: setup
+#| include: false
+
+library(here)
+
+source(here("R", "_setup.R"))
+```
+
+<!-- badges: start -->
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
+[![OSF DOI](https://img.shields.io/badge/OSF-10.17605/OSF.IO/TNFGU-1284C5.svg)](https://doi.org/10.17605/OSF.IO/TNFGU)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: CC0-1.0](https://img.shields.io/badge/license-CC0_1.0-lightgrey.svg)](http://creativecommons.org/publicdomain/zero/1.0/)
+<!-- badges: end -->
+
+## Overview
+
+This report contains a reproducible pipeline for processing the *Global Dataset of Historical Yield* [@iizumi2019; @iizumi2020] in [R](https://www.r-project.org/).
+
+## Data Availability
+
+::: {style="text-align: left;"}
+[![](https://img.shields.io/badge/OSF-10.17605/OSF.IO/TNFGU-1284C5.svg)](https://doi.org/10.17605/OSF.IO/TNFGU)
+:::
+
+The processed data are available in the `rds` format via a dedicated repository on the Open Science Framework ([OSF](https://osf.io/)), accessible [here](https://doi.org/10.17605/OSF.IO/TNFGU). You can also access these files directly from R using the [`osfr`](https://docs.ropensci.org/osfr/) package.
+
+## Methods
+
+### Source of Data
+
+The data used in this analysis come from the following source:
+
+- [PANGAEA](https://doi.pangaea.de): A data publisher for earth and environmental sciences, which hosts the *Global Dataset of Historical Yield* [@iizumi2019; @iizumi2020].
+
+### Data Munging
+
+The data munging followed the data science workflow outlined by @wickham2023e, as illustrated in [@fig-wickham-at-al-2024-figure-1]. All processes were made using the [Quarto](https://quarto.org/) publishing system [@allaire], the [R programming language](https://www.r-project.org/) [@rcoreteama] and several R packages.
+
+Spatial data analysis was performed using the [terra](https://rspatial.github.io/terra/reference/terra-package.html) R package. For data manipulation and workflow, packages from the [tidyverse](https://www.tidyverse.org/) and [rOpenSci](https://ropensci.org/) ecosystems—adhering to the tidy tools manifesto [@wickham2023c]—were prioritized. All steps were designed to ensure transparency and reproducibility of results.
+
+::: {#fig-wickham-at-al-2024-figure-1}
+![](images/wickham-at-al-2024-figure-1.png){width=75%}
+
+[Source: Reproduced from @wickham2023e.]{.legend}
+
+Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
+:::
+
+### Code Style
+
+The Tidyverse [code style guide](https://style.tidyverse.org/) and [design principles](https://design.tidyverse.org/) were followed to ensure consistency and enhance readability.
+
+### Reproducibility
+
+The pipeline is fully reproducible and can be run again at any time. See the [README](https://github.com/danielvartan/gdhy/blob/main/README.md) file in the code repository to learn how to run it.
+
+## Set the Environment
+
+```{r}
+#| code-fold: false
+#| output: false
+
+library(brandr)
+library(fs)
+library(geodata)
+library(ggplot2)
+library(groomr) # github.com/danielvartan/groomr
+library(here)
+library(httr2)
+library(ncdf4)
+library(orbis) # github.com/danielvartan/orbis
+library(osfr)
+library(readr)
+library(stringr)
+library(terra)
+library(tidyterra)
+library(zip)
+```
+
+## Set the Initial Variables
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+crop <- c(
+  "maize", "maize_major", "maize_second", "rice", "rice_major", "rice_second",
+  "soybean", "wheat", "wheat_spring", "wheat_winter"
+)
+```
+
+```{r}
+#| code-fold: false
+
+crop <- "rice"
+```
+
+```{r}
+#| code-fold: false
+
+raw_data_dir <- here("data-raw")
+```
+
+```{r}
+#| code-fold: false
+
+valid_data_dir <- here("data")
+```
+
+## Download the Data
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+if (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)
+```
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+raw_file <- here(raw_data_dir, "raw.zip")
+```
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+paste0(
+    "https://store.pangaea.de/Publications/",
+    "IizumiT_2019/",
+    "gdhy_v1.2_v1.3_20190128.zip"
+  ) |>
+  request() |>
+  req_progress() |>
+  req_perform(raw_file)
+```
+
+## Unzip the Data
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+raw_file |> unzip(exdir = raw_data_dir, overwrite = TRUE)
+```
+
+```{r}
+#| eval: false
+#| code-fold: false
+
+file_delete(raw_file)
+```
+
+## Read the Data
+
+```{r}
+#| code-fold: false
+
+dir <- here(raw_data_dir, crop)
+```
+
+```{r}
+#| code-fold: false
+
+files <- dir |> dir_ls(type = "file", regexp = "\\.nc4$")
+```
+
+```{r}
+#| code-fold: false
+
+data <- files |> rast()
+```
+
+## Tidy the Data
+
+```{r}
+#| code-fold: false
+
+years <- files |> str_extract("\\d{4}")
+```
+
+```{r}
+#| code-fold: false
+
+names(data) <- years
+varnames(data) <- rep(paste0(crop, "_yield"), nlyr(data))
+```
+
+```{r}
+#| code-fold: false
+
+data <- data |> shift_and_rotate(dx = 180)
+```
+
+## Visualize the Data
+
+```{r}
+#| code-fold: false
+
+world_shape <- world(path = raw_data_dir)
+```
+
+```{r}
+#| eval: true
+#| code-fold: false
+#| fig-height: 4
+#| fig-width: 8
+
+for (i in cut_vector(names(data), n = 9)) {
+  i_data <- data |> select(all_of(i))
+
+  i_plot <-
+    ggplot() +
+    geom_spatvector(data = world_shape) +
+    geom_spatraster(data = i_data) +
+    facet_wrap(~lyr, ncol = 2) +
+    scale_fill_brand_b(direction = -1) +
+    labs(fill = "Yield (t/ha)")
+
+  print(i_plot)
+}
+```
+
+## Data Dictionary
+
+The data dictionary for the *Global Dataset of Historical Yield* is available [here](https://doi.org/10.20783/DIAS.564). For detailed information, see @iizumi2019 and @iizumi2020.
+
+## Save the Valid Data
+
+```{r}
+#| code-fold: false
+
+if (!dir.exists(valid_data_dir)) dir.create(valid_data_dir)
+```
+
+```{r}
+#| code-fold: false
+
+valid_file <- here("data", paste0(crop, ".rds"))
+```
+
+```{r}
+#| code-fold: false
+
+data |> write_rds(valid_file)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+asc_files <- here(valid_data_dir, paste0(crop, "-", names(data), ".asc"))
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+data |>
+  terra::writeRaster(
+    filename = asc_files,
+    overwrite = TRUE,
+    NAflag = -9999, # ESRI default
+    verbose = FALSE
+  )
+```
+
+<!-- ## Upload the Data to OSF (Optional) -->
+
+<!-- Only repository administrators can upload data to OSF. -->
+<!-- To enable uploads, set your `OSF_PAT` environment variable with a valid OSF personal access token. -->
+
+```{r}
+#| eval: false
+#| include: false
+
+Sys.getenv("OSF_PAT") |> osf_auth()
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+license_file <- here("data", "LICENSE.txt")
+
+if (!file_exists(license_file)) {
+  request("https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt") |>
+    req_perform(path = license_file)
+}
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+osf_id <- paste0("https://osf.io/", "mvsdk")
+
+osf_upload(
+  x = osf_retrieve_node(osf_id),
+  path = c(valid_file, license_file),
+  conflicts = "overwrite"
+)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+dev.off()
+```
+
+```{r}
+#| include: false
+
+gc()
+```
+
+## How to Cite
+
+::: {.callout-important}
+When using this data, you must also cite the original data sources.
+:::
+
+To cite this work, please use the following format:
+
+Vartanian, D., & Carvalho, A. M. (2025). *A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.* \[Computer software\]. Sustentarea Research and Extension Group of the University of São Paulo. <https://sustentarea.github.io/gdhy>
+
+A BibTeX entry for LaTeX users is
+
+```
+@misc{vartanian2025,
+  title = {A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.},
+  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
+  year = {2025},
+  address = {São Paulo},
+  institution = {Sustentarea Research and Extension Group of the University of São Paulo},
+  langid = {en},
+  url = {https://sustentarea.github.io/gdhy}
+}
+```
+
+## License
+
+::: {style="text-align: left;"}
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: CC0-1.0](https://img.shields.io/badge/license-CC0_1.0-lightgrey.svg)](http://creativecommons.org/publicdomain/zero/1.0/)
+:::
+
+::: {.callout-important}
+The original data sources may have their own license terms and conditions.
+:::
+
+The code in this report is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0), while the report is available under the [Creative Commons CC0 License](https://creativecommons.org/public-domain/cc0/).
+
+``` text
+Copyright (C) 2025 Daniel Vartanian
+
+The code in this report is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+```
+
+## Acknowledgments
+
+![](images/sustentarea-icon.svg){style="width: 15%;"}
+
+This work is part of the [Sustentarea](https://www.fsp.usp.br/sustentarea) Research and Extension Group project: *Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil's public health system (SUS)*.
+
+![](images/cnpq-logo.svg){style="width: 25%;"}
+
+This work was supported by the Department of Science and Technology of the Secretariat of Science, Technology, and Innovation and of the Health Economic-Industrial Complex ([SECTICS](https://www.gov.br/saude/pt-br/composicao/sectics/)) of the [Ministry of Health](https://www.gov.br/saude/pt-br/composicao/sectics/) of Brazil, and the National Council for Scientific and Technological Development ([CNPq](https://www.gov.br/cnpq/)) (grant no. 444588/2023-0).
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

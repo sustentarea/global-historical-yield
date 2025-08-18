@@ -1,0 +1,15 @@
+/.quarto/
+/.Rproj.user/
+/_freeze/
+/*_cache/
+/cache/
+/data/
+/data-raw/
+
+*.knit.md
+.Rapp.history
+.RData
+.Renviron
+.Rhistory
+.Ruserdata
+*.utf8.md

@@ -1,0 +1,114 @@
+[
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "",
+    "section": "Overview",
+    "text": "Overview\nThis report contains a reproducible pipeline for processing the Global Dataset of Historical Yield (Iizumi, 2019; Iizumi & Sakai, 2020) in R."
+  },
+  {
+    "objectID": "index.html#data-availability",
+    "href": "index.html#data-availability",
+    "title": "",
+    "section": "Data Availability",
+    "text": "Data Availability\n\n\n\nThe processed data are available in the rds format via a dedicated repository on the Open Science Framework (OSF), accessible here. You can also access these files directly from R using the osfr package."
+  },
+  {
+    "objectID": "index.html#methods",
+    "href": "index.html#methods",
+    "title": "",
+    "section": "Methods",
+    "text": "Methods\nSource of Data\nThe data used in this analysis come from the following source:\n\n\nPANGAEA: A data publisher for earth and environmental sciences, which hosts the Global Dataset of Historical Yield (Iizumi, 2019; Iizumi & Sakai, 2020).\nData Munging\nThe data munging followed the data science workflow outlined by Wickham et al. (2023), as illustrated in Figure 1. All processes were made using the Quarto publishing system (Allaire et al., n.d.), the R programming language (R Core Team, n.d.) and several R packages.\nSpatial data analysis was performed using the terra R package. For data manipulation and workflow, packages from the tidyverse and rOpenSci ecosystems—adhering to the tidy tools manifesto (Wickham, 2023)—were prioritized. All steps were designed to ensure transparency and reproducibility of results.\n\n\nFigure 1: Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.\n\n\nSource: Reproduced from Wickham et al. (2023).\n\n\n\nCode Style\nThe Tidyverse code style guide and design principles were followed to ensure consistency and enhance readability.\nReproducibility\nThe pipeline is fully reproducible and can be run again at any time. See the README file in the code repository to learn how to run it."
+  },
+  {
+    "objectID": "index.html#set-the-environment",
+    "href": "index.html#set-the-environment",
+    "title": "",
+    "section": "Set the Environment",
+    "text": "Set the Environment\n\nlibrary(brandr)\nlibrary(fs)\nlibrary(geodata)\nlibrary(ggplot2)\nlibrary(groomr) # github.com/danielvartan/groomr\nlibrary(here)\nlibrary(httr2)\nlibrary(ncdf4)\nlibrary(orbis) # github.com/danielvartan/orbis\nlibrary(osfr)\nlibrary(readr)\nlibrary(stringr)\nlibrary(terra)\nlibrary(tidyterra)\nlibrary(zip)"
+  },
+  {
+    "objectID": "index.html#set-the-initial-variables",
+    "href": "index.html#set-the-initial-variables",
+    "title": "",
+    "section": "Set the Initial Variables",
+    "text": "Set the Initial Variables\n\ncrop &lt;- c(\n  \"maize\", \"maize_major\", \"maize_second\", \"rice\", \"rice_major\", \"rice_second\",\n  \"soybean\", \"wheat\", \"wheat_spring\", \"wheat_winter\"\n)\n\n\ncrop &lt;- \"rice\"\n\n\nraw_data_dir &lt;- here(\"data-raw\")\n\n\nvalid_data_dir &lt;- here(\"data\")"
+  },
+  {
+    "objectID": "index.html#download-the-data",
+    "href": "index.html#download-the-data",
+    "title": "",
+    "section": "Download the Data",
+    "text": "Download the Data\n\nif (!dir.exists(raw_data_dir)) dir.create(raw_data_dir)\n\n\nraw_file &lt;- here(raw_data_dir, \"raw.zip\")\n\n\npaste0(\n    \"https://store.pangaea.de/Publications/\",\n    \"IizumiT_2019/\",\n    \"gdhy_v1.2_v1.3_20190128.zip\"\n  ) |&gt;\n  request() |&gt;\n  req_progress() |&gt;\n  req_perform(raw_file)"
+  },
+  {
+    "objectID": "index.html#unzip-the-data",
+    "href": "index.html#unzip-the-data",
+    "title": "",
+    "section": "Unzip the Data",
+    "text": "Unzip the Data\n\nraw_file |&gt; unzip(exdir = raw_data_dir, overwrite = TRUE)\n\n\nfile_delete(raw_file)"
+  },
+  {
+    "objectID": "index.html#read-the-data",
+    "href": "index.html#read-the-data",
+    "title": "",
+    "section": "Read the Data",
+    "text": "Read the Data\n\ndir &lt;- here(raw_data_dir, crop)\n\n\nfiles &lt;- dir |&gt; dir_ls(type = \"file\", regexp = \"\\\\.nc4$\")\n\n\ndata &lt;- files |&gt; rast()"
+  },
+  {
+    "objectID": "index.html#tidy-the-data",
+    "href": "index.html#tidy-the-data",
+    "title": "",
+    "section": "Tidy the Data",
+    "text": "Tidy the Data\n\nyears &lt;- files |&gt; str_extract(\"\\\\d{4}\")\n\n\nnames(data) &lt;- years\nvarnames(data) &lt;- rep(paste0(crop, \"_yield\"), nlyr(data))\n\n\ndata &lt;- data |&gt; shift_and_rotate(dx = 180)"
+  },
+  {
+    "objectID": "index.html#visualize-the-data",
+    "href": "index.html#visualize-the-data",
+    "title": "",
+    "section": "Visualize the Data",
+    "text": "Visualize the Data\n\nworld_shape &lt;- world(path = raw_data_dir)\n\n\nfor (i in cut_vector(names(data), n = 9)) {\n  i_data &lt;- data |&gt; select(all_of(i))\n\n  i_plot &lt;-\n    ggplot() +\n    geom_spatvector(data = world_shape) +\n    geom_spatraster(data = i_data) +\n    facet_wrap(~lyr, ncol = 2) +\n    scale_fill_brand_b(direction = -1) +\n    labs(fill = \"Yield (t/ha)\")\n\n  print(i_plot)\n}"
+  },
+  {
+    "objectID": "index.html#data-dictionary",
+    "href": "index.html#data-dictionary",
+    "title": "",
+    "section": "Data Dictionary",
+    "text": "Data Dictionary\nThe data dictionary for the Global Dataset of Historical Yield is available here. For detailed information, see Iizumi (2019) and Iizumi & Sakai (2020)."
+  },
+  {
+    "objectID": "index.html#save-the-valid-data",
+    "href": "index.html#save-the-valid-data",
+    "title": "",
+    "section": "Save the Valid Data",
+    "text": "Save the Valid Data\n\nif (!dir.exists(valid_data_dir)) dir.create(valid_data_dir)\n\n\nvalid_file &lt;- here(\"data\", paste0(crop, \".rds\"))\n\n\ndata |&gt; write_rds(valid_file)"
+  },
+  {
+    "objectID": "index.html#how-to-cite",
+    "href": "index.html#how-to-cite",
+    "title": "",
+    "section": "How to Cite",
+    "text": "How to Cite\n\n\n\n\n\n\nWhen using this data, you must also cite the original data sources.\n\n\n\nTo cite this work, please use the following format:\nVartanian, D., & Carvalho, A. M. (2025). A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al. [Computer software]. Sustentarea Research and Extension Group of the University of São Paulo. https://sustentarea.github.io/gdhy\nA BibTeX entry for LaTeX users is\n@misc{vartanian2025,\n  title = {A reproducible pipeline for processing the Global Dataset of Historical Yields (1981–2016) by Iizumi et al.},\n  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},\n  year = {2025},\n  address = {São Paulo},\n  institution = {Sustentarea Research and Extension Group of the University of São Paulo},\n  langid = {en},\n  url = {https://sustentarea.github.io/gdhy}\n}"
+  },
+  {
+    "objectID": "index.html#license",
+    "href": "index.html#license",
+    "title": "",
+    "section": "License",
+    "text": "License\n\n \n\n\n\n\n\n\n\nThe original data sources may have their own license terms and conditions.\n\n\n\nThe code in this report is licensed under the GNU General Public License Version 3, while the report is available under the Creative Commons CC0 License.\nCopyright (C) 2025 Daniel Vartanian\n\nThe code in this report is free software: you can redistribute it and/or\nmodify it under the terms of the GNU General Public License as published by the\nFree Software Foundation, either version 3 of the License, or (at your option)\nany later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A\nPARTICULAR PURPOSE. See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with\nthis program. If not, see &lt;https://www.gnu.org/licenses/&gt;."
+  },
+  {
+    "objectID": "index.html#acknowledgments",
+    "href": "index.html#acknowledgments",
+    "title": "",
+    "section": "Acknowledgments",
+    "text": "Acknowledgments\n\nThis work is part of the Sustentarea Research and Extension Group project: Global syndemic: The impact of anthropogenic climate change on the health and nutrition of children under five years old attended by Brazil’s public health system (SUS).\n\nThis work was supported by the Department of Science and Technology of the Secretariat of Science, Technology, and Innovation and of the Health Economic-Industrial Complex (SECTICS) of the Ministry of Health of Brazil, and the National Council for Scientific and Technological Development (CNPq) (grant no. 444588/2023-0)."
+  },
+  {
+    "objectID": "index.html#references",
+    "href": "index.html#references",
+    "title": "",
+    "section": "References",
+    "text": "References\n\n\nAllaire, J. J., Teague, C., Xie, Y., & Dervieux, C. (n.d.). Quarto [Computer software]. Zenodo. https://doi.org/10.5281/ZENODO.5960048\n\n\nIizumi, T. (2019). Global dataset of historical yields v1.2 and v1.3 aligned version (pp. 15.2 MBytes) [Data set]. PANGAEA. https://doi.org/10.1594/PANGAEA.909132\n\n\nIizumi, T., & Sakai, T. (2020). The global dataset of historical yields for major crops 1981–2016. Scientific Data, 7(1), 97. https://doi.org/10.1038/s41597-020-0433-7\n\n\nR Core Team. (n.d.). R: A language and environment for statistical computing [Computer software]. R Foundation for Statistical Computing. https://www.R-project.org\n\n\nWickham, H. (2023). The tidy tools manifesto. Tidyverse. https://tidyverse.tidyverse.org/articles/manifesto.html\n\n\nWickham, H., Çetinkaya-Rundel, M., & Grolemund, G. (2023). R for data science: Import, tidy, transform, visualize, and model data (2nd ed.). O’Reilly Media. https://r4ds.hadley.nz"
+  }
+]

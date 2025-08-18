@@ -1,0 +1,72 @@
+editor: source
+
+execute:
+  cache: false # "Danger Will Robinson!"
+  freeze: false # If you plan to use it, remember to disable it afterward!
+
+project:
+  type: website
+  output-dir: docs
+  render: [index.qmd]
+  post-render: "R/_post-render.R"
+
+title: >
+  A Reproducible Pipeline for Processing the Global Dataset of Historical
+  Yields (1981-2016) by Iizumi et al.
+author: "Daniel Vartanian & Aline M. de Carvalho"
+keyword: >
+  pipelines, crop yield, yield estimates, data munging, data science,
+  spatial data, rstats, open data, open science, pangaea, world
+date: today
+date-format: long
+
+website:
+  favicon: images/sustentarea-icon.svg
+  site-url: https://sustentarea.github.io/gdhy/
+  repo-url: https://github.com/sustentarea/gdhy/
+  issue-url: https://github.com/sustentarea/gdhy/issues/
+  open-graph:
+    image: images/og-image.png
+    image-width: 2400
+    image-height: 1600
+    image-alt: Sustentarea Research and Extension Group
+  repo-branch: main
+  repo-actions: [edit, source, issue]
+  search: false
+  navbar:
+    title: false
+    background: "#272B33"
+    right:
+      - icon: github
+        href: https://github.com/sustentarea/gdhy/
+        aria-label: GitHub
+
+lightbox:
+  match: auto
+  effect: fade
+  desc-position: bottom
+  loop: false
+
+format:
+  html:
+    toc: true
+    toc-depth: 5
+    toc-location: right
+    locale: en
+    language: en-us
+    code-fold: true
+    code-link: true
+    code-tools: false
+    df-print: paged
+    fig-align: center
+    cap-location: top
+    lightbox: true
+    callout-appearance: simple
+    csl: csl/english-apa-author-date.csl
+    theme: [cosmo, scss/styles.scss, brand]
+    other-links:
+      - text: Sustentarea website
+        href: https://www.fsp.usp.br/sustentarea
+
+google-scholar: true
+bibliography: references.bib
