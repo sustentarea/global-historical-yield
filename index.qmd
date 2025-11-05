@@ -30,7 +30,7 @@ The processed data are available in the `tif` format via a dedicated repository 
 
 ### Source of Data
 
-The data used in this analysis come from the following source:
+The data used in this report come from the following source:
 
 - [PANGAEA](https://doi.pangaea.de): A data publisher for earth and environmental sciences, which hosts the *Global Dataset of Historical Yield* [@iizumi2019; @iizumi2020].
 
